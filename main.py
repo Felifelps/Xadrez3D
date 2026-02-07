@@ -2,7 +2,7 @@ from OpenGL.GL import *
 from OpenGL.GLU import *
 from OpenGL.GLUT import *
 
-from mesh import Mesh
+from mesh import Mesh, Visualizable
 
 WIDTH, HEIGHT = 800, 600
 CLEAR_COLOR = (0.1, 0.1, 0.1, 1.0)
@@ -11,10 +11,9 @@ class App:
     def __init__(self):
         self.__init_opengl()
 
-        vertices, texture = Mesh.load_obj_with_mtl("chess_knight.obj")
-        knight = Mesh(vertices, texture_id=texture, scale=15)
+        obj = Visualizable("cube.obj")
 
-        self.objects: list[Mesh] = [knight]
+        self.objects: list[Mesh] = [obj]
 
     def __init_opengl(self):
         glutInit()
@@ -88,7 +87,7 @@ class App:
 
         glLoadIdentity()
 
-        glTranslatef(0, 0, -15)
+        glTranslatef(0, 0, -5)
 
         for object in self.objects:
             object.draw()
