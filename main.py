@@ -88,7 +88,7 @@ class App:
 
         glLoadIdentity()
 
-        glTranslatef(0, 0, -5)
+        glTranslatef(0, 0, -15)
 
         for object in self.objects:
             object.draw()
