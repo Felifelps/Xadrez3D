@@ -11,7 +11,7 @@ class App:
     def __init__(self):
         self.__init_opengl()
 
-        obj = Visualizable("cube.obj")
+        obj = Visualizable("chess_knight.obj", pos=(0,0,0), scale=2)
 
         self.objects: list[Mesh] = [obj]
 
@@ -42,6 +42,22 @@ class App:
         glutSpecialFunc(lambda key, x, y: self.__special_keys(key, x, y))
         glutMotionFunc(lambda x, y: self.__motion(x, y))
         glutPassiveMotionFunc(lambda x, y: self.__passive_motion(x, y))
+
+    def __display(self):
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+
+        glLoadIdentity()
+
+        gluLookAt(
+            0, 0.5, 3,   # posição da câmera
+            0, 0.0, 0,   # olhando para o centro (seu cavalo está centralizado)
+            0, 1, 0      # eixo Y para cima
+        )
+
+        for object in self.objects:
+            object.draw()
+
+        glutSwapBuffers()
 
     def __reshape(self, w, h):
         glViewport(0, 0, w, h)
@@ -81,18 +97,6 @@ class App:
             object.passive_motion(x, y)
 
         glutPostRedisplay()
-
-    def __display(self):
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
-
-        glLoadIdentity()
-
-        glTranslatef(0, 0, -5)
-
-        for object in self.objects:
-            object.draw()
-
-        glutSwapBuffers()
 
     def run(self):
         glutMainLoop()
