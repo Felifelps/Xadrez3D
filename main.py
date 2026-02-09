@@ -2,7 +2,7 @@ from OpenGL.GL import *
 from OpenGL.GLU import *
 from OpenGL.GLUT import *
 
-from mesh import Mesh, Visualizable
+from models import Mesh, Board
 
 WIDTH, HEIGHT = 800, 600
 CLEAR_COLOR = (0.1, 0.1, 0.1, 1.0)
@@ -11,7 +11,7 @@ class App:
     def __init__(self):
         self.__init_opengl()
 
-        obj = Visualizable("chess_knight.obj", pos=(0,0,0), scale=2)
+        obj = Board(pos=(0,0,0), scale=2)
 
         self.objects: list[Mesh] = [obj]
 
@@ -28,12 +28,13 @@ class App:
         glEnable(GL_COLOR_MATERIAL)
         glEnable(GL_NORMALIZE)
         glShadeModel(GL_SMOOTH)
+        glEnable(GL_TEXTURE_2D)
 
         glLightfv(GL_LIGHT0, GL_DIFFUSE,  (1.0, 1.0, 1.0, 1.0))
         glLightfv(GL_LIGHT0, GL_SPECULAR, (1.0, 1.0, 1.0, 1.0))
         glLightfv(GL_LIGHT0, GL_AMBIENT,  (0.2, 0.2, 0.2, 1.0))
 
-        glLightfv(GL_LIGHT0, GL_POSITION, (0, 10, 10, 1))
+        glLightfv(GL_LIGHT0, GL_POSITION, (0, -5, -5, 1))
 
         glutDisplayFunc(lambda: self.__display())
         glutReshapeFunc(lambda w, h: self.__reshape(w, h))
@@ -49,9 +50,9 @@ class App:
         glLoadIdentity()
 
         gluLookAt(
-            0, 0.5, 3,   # posição da câmera
-            0, 0.0, 0,   # olhando para o centro (seu cavalo está centralizado)
-            0, 1, 0      # eixo Y para cima
+            0, 2, 3,
+            0, 0, 0,
+            0, 1, 0
         )
 
         for object in self.objects:
