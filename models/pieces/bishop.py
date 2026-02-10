@@ -4,11 +4,13 @@ from OpenGL.GLUT import *
 
 
 class Bishop(Piece):
-    def __init__(self, color, pos, **kwargs):
-        super().__init__(color, pos, **kwargs)
+    def __init__(self, color, pos, rot=(0, 0, 0), scale=1):
+        super().__init__(color, pos, rot, scale)
 
     def draw(self):
         glPushMatrix()
+        glDisable(GL_TEXTURE_2D)
+        glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE)
         glTranslatef(*self.pos)
         glScalef(self.scale, self.scale, self.scale)
         self.put_color()
