@@ -12,6 +12,9 @@ class Bishop(Piece):
         glDisable(GL_TEXTURE_2D)
         glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE)
         glTranslatef(*self.pos)
+        glRotatef(self.rot[0], 1, 0, 0)
+        glRotatef(self.rot[1], 0, 1, 0)
+        glRotatef(self.rot[2], 0, 0, 1)
         glScalef(self.scale, self.scale, self.scale)
         self.put_color()
         # BASE
@@ -44,3 +47,13 @@ class Bishop(Piece):
         glPopMatrix()
 
         glPopMatrix()
+    
+    def keyboard(self, key, x, y):
+        rotation_speed = 10
+        key = key.decode("utf-8")
+        
+        if key == "a": self.rot[1] -= rotation_speed
+        if key == "d": self.rot[1] += rotation_speed
+        if key == "w": self.rot[2] += rotation_speed
+        if key == "s": self.rot[2] -= rotation_speed
+        
