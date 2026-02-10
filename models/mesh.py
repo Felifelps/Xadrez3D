@@ -14,7 +14,10 @@ class Mesh:
         scale=1,
         gl_type=GL_TRIANGLES,
     ):
-        vertex, texcoords, normals, faces_v, faces_vt, faces_vn = self.load_obj(obj_path)
+        if obj_path is not None:
+            vertex, texcoords, normals, faces_v, faces_vt, faces_vn = self.load_obj(obj_path)
+        else:
+            vertex, texcoords, normals, faces_v, faces_vt, faces_vn = [], [], [], [], [], []
 
         self.gl_type = gl_type
         self.texture_id = self.load_texture(texture_path)
@@ -68,6 +71,8 @@ class Mesh:
         self.vertex_count = len(verts)
 
     def __compute_center(self):
+        if not self.vertex:
+            return np.array([0, 0, 0])
         verts = np.array(self.vertex, dtype=float)
         center = np.mean(verts, axis=0)
         return center
@@ -157,7 +162,7 @@ class Mesh:
         faces_vt = []
         faces_vn = []
 
-        with open(path, "r") as f:
+        with open(path, "r", encoding="utf-8") as f:
             for line in f:
                 if line.startswith("v "):
                     _, x, y, z = line.split()
