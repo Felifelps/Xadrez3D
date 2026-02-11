@@ -1,7 +1,7 @@
 from OpenGL.GL import *
 from PIL import Image
 import numpy as np
-from utils import compute_normal
+from utils import *
 
 class Mesh:
     def __init__(
@@ -11,7 +11,7 @@ class Mesh:
         pos=(0, 0, 0),
         rot=(0, 0, 0),
         color=(1, 1, 1),
-        scale=1,
+        scale=(1, 1, 1),
         gl_type=GL_TRIANGLES,
     ):
         vertex, texcoords, normals, faces_v, faces_vt, faces_vn = self.load_obj(obj_path)
@@ -28,8 +28,15 @@ class Mesh:
         self.pos = list(pos)
         self.rot = list(rot)
         self.color = list(color)
-        self.scale = scale
+        self.scale = list(scale)
         self.center = self.__compute_center()
+
+        xs = [v[0] for v in vertex]
+        ys = [v[1] for v in vertex]
+        zs = [v[2] for v in vertex]
+
+        self.bbox_min = (min(xs), min(ys), min(zs))
+        self.bbox_max = (max(xs), max(ys), max(zs))
 
         self.__compute_continuous_arrays()
 
@@ -128,7 +135,7 @@ class Mesh:
         glRotatef(self.rot[1], 0, 1, 0)
         glRotatef(self.rot[2], 0, 0, 1)
         glTranslatef(*self.center)
-        glScalef(self.scale, self.scale, self.scale)
+        glScalef(*self.scale)
 
         glEnableClientState(GL_VERTEX_ARRAY)
         glEnableClientState(GL_NORMAL_ARRAY)
@@ -167,7 +174,8 @@ class Mesh:
                     vertex.append((float(x), float(y), float(z)))
 
                 elif line.startswith("vt "):
-                    _, u, v = line.split()
+                    parts = line.split()
+                    u, v = parts[1:3]
                     texcoords.append((float(u), float(v)))
 
                 elif line.startswith("vn "):
@@ -213,10 +221,29 @@ class Mesh:
                         faces_vt.append([face_vt[0], face_vt[2], face_vt[3]])
                         faces_vn.append([face_vn[0], face_vn[2], face_vn[3]])
 
-
-
-
         return vertex, texcoords, normals, faces_v, faces_vt, faces_vn
+
+    def intersect_ray(self, ray_origin, ray_dir):
+        min_x, min_y, min_z = self.bbox_min
+        max_x, max_y, max_z = self.bbox_max
+
+        px, py, pz = self.pos
+        sx, sy, sz = self.scale
+
+        world_min = (
+            px + min_x * sx,
+            py + min_y * sy,
+            pz + min_z * sz,
+        )
+
+        world_max = (
+            px + max_x * sx,
+            py + max_y * sy,
+            pz + max_z * sz,
+        )
+
+        return ray_intersect_aabb(ray_origin, ray_dir, world_min, world_max)
+
 
     def keyboard(self, key, x, y): pass
     def special_keys(self, key, x, y): pass

@@ -4,29 +4,31 @@ from OpenGL.GL import *
 from OpenGL.GLU import *
 from OpenGL.GLUT import *
 
-from models import Mesh, Board, Tower
+from models import *
 
 WIDTH, HEIGHT = 800, 600
 CLEAR_COLOR = (0.1, 0.1, 0.1, 1.0)
 
 class App:
     def __init__(self):
-        self.__init_opengl()
         self.camera_distance = 2.5
         self.camera_theta = 0
         self.camera_y = 1.5
         self.camera_speed = 5
 
+        self.__init_opengl()
+
         self.objects: list[Mesh] = [
             Board(),
-            Tower(pos=(-0.875, 0, -0.875), scale=0.25),
-            Tower(pos=(-0.625, 0, -0.625), scale=0.25),
-            Tower(pos=(-0.375, 0, -0.375), scale=0.25),
-            Tower(pos=(-0.125, 0, -0.125), scale=0.25),
-            Tower(pos=(0.875, 0, 0.875), scale=0.25),
-            Tower(pos=(0.625, 0, 0.625), scale=0.25),
-            Tower(pos=(0.375, 0, 0.375), scale=0.25),
-            Tower(pos=(0.125, 0, 0.125), scale=0.25),
+            Tower(pos=(-0.875, 0, -0.875)),
+            Tower(pos=(-0.625, 0, -0.625)),
+            Tower(pos=(-0.375, 0, -0.375)),
+            Tower(pos=(-0.125, 0, -0.125)),
+            Tower(pos=(0.875, 0, 0.875)),
+            Tower(pos=(0.625, 0, 0.625)),
+            Tower(pos=(0.375, 0, 0.375)),
+            Tower(pos=(0.125, 0, 0.125)),
+            Knight(pos=(0,0,0)),
         ]
 
     def __init_opengl(self):
@@ -63,6 +65,14 @@ class App:
 
         glLoadIdentity()
 
+        self.__position_camera()
+
+        for object in self.objects:
+            object.draw()
+
+        glutSwapBuffers()
+
+    def __position_camera(self):
         theta = radians(self.camera_theta)
 
         x = self.camera_distance * sin(theta)
@@ -73,11 +83,6 @@ class App:
             0, 0, 0,
             0, 1, 0
         )
-
-        for object in self.objects:
-            object.draw()
-
-        glutSwapBuffers()
 
     def __reshape(self, w, h):
         glViewport(0, 0, w, h)
@@ -98,8 +103,6 @@ class App:
 
         self.camera_theta %= 360
 
-        
-
         for object in self.objects:
             object.keyboard(key, x, y)
 
@@ -112,10 +115,67 @@ class App:
         glutPostRedisplay()
 
     def __mouse(self, button, state, x, y):
-        for object in self.objects:
-            object.mouse(button, state, x, y)
+        # Zoom com scroll
+        if state == GLUT_DOWN:
+            if button == 3:      # scroll up
+                self.camera_distance -= 0.1
+            elif button == 4:    # scroll down
+                self.camera_distance += 0.1
+
+            # Limites opcionais
+            self.camera_distance = max(2.0, min(self.camera_distance, 3.0))
+
+        if button == GLUT_LEFT_BUTTON and state == GLUT_DOWN:
+            ray_origin, ray_direction = self.__make_ray_from_mouse(x, y)
+
+            print("Ray origin:", ray_origin)
+            print("Ray direction:", ray_direction)
+
+            clicked = None
+            min_dist = 1e9
+
+            for obj in self.objects:
+                if isinstance(obj, Board):
+                    continue
+
+                hit, dist = obj.intersect_ray(ray_origin, ray_direction)
+
+                if hit and dist < min_dist:
+                    clicked = obj
+                    min_dist = dist
+
+            if clicked:
+                print(f"👉 Você clicou em: {clicked}")
 
         glutPostRedisplay()
+    
+    def __make_ray_from_mouse(self, mouse_x, mouse_y):
+        # Pegando matrizes OpenGL atuais
+        modelview = glGetDoublev(GL_MODELVIEW_MATRIX)
+        projection = glGetDoublev(GL_PROJECTION_MATRIX)
+        viewport = glGetIntegerv(GL_VIEWPORT)
+
+        # Inverte Y da tela: OpenGL usa origem no canto inferior
+        mouse_y = viewport[3] - mouse_y
+
+        # Ponto no near plane
+        near_point = gluUnProject(mouse_x, mouse_y, 0.0, modelview, projection, viewport)
+
+        # Ponto no far plane
+        far_point = gluUnProject(mouse_x, mouse_y, 1.0, modelview, projection, viewport)
+
+        # Direção = far - near
+        dir_vector = (
+            far_point[0] - near_point[0],
+            far_point[1] - near_point[1],
+            far_point[2] - near_point[2]
+        )
+
+        # Normaliza direção
+        length = (dir_vector[0]**2 + dir_vector[1]**2 + dir_vector[2]**2)**0.5
+        dir_vector = (dir_vector[0]/length, dir_vector[1]/length, dir_vector[2]/length)
+
+        return near_point, dir_vector
 
     def __motion(self, x, y):
         for object in self.objects:
