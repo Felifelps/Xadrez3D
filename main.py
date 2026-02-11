@@ -1,8 +1,10 @@
+from math import sin, cos, radians
+
 from OpenGL.GL import *
 from OpenGL.GLU import *
 from OpenGL.GLUT import *
 
-from models import Mesh, Board
+from models import Mesh, Board, Tower
 
 WIDTH, HEIGHT = 800, 600
 CLEAR_COLOR = (0.1, 0.1, 0.1, 1.0)
@@ -10,10 +12,22 @@ CLEAR_COLOR = (0.1, 0.1, 0.1, 1.0)
 class App:
     def __init__(self):
         self.__init_opengl()
+        self.camera_distance = 2.5
+        self.camera_theta = 0
+        self.camera_y = 1.5
+        self.camera_speed = 5
 
-        obj = Board(pos=(0,0,0), scale=2)
-
-        self.objects: list[Mesh] = [obj]
+        self.objects: list[Mesh] = [
+            Board(),
+            Tower(pos=(-0.875, 0, -0.875), scale=0.25),
+            Tower(pos=(-0.625, 0, -0.625), scale=0.25),
+            Tower(pos=(-0.375, 0, -0.375), scale=0.25),
+            Tower(pos=(-0.125, 0, -0.125), scale=0.25),
+            Tower(pos=(0.875, 0, 0.875), scale=0.25),
+            Tower(pos=(0.625, 0, 0.625), scale=0.25),
+            Tower(pos=(0.375, 0, 0.375), scale=0.25),
+            Tower(pos=(0.125, 0, 0.125), scale=0.25),
+        ]
 
     def __init_opengl(self):
         glutInit()
@@ -49,8 +63,13 @@ class App:
 
         glLoadIdentity()
 
+        theta = radians(self.camera_theta)
+
+        x = self.camera_distance * sin(theta)
+        z = self.camera_distance * cos(theta)
+
         gluLookAt(
-            0, 1.5, 2.25,
+            x, self.camera_y, z,
             0, 0, 0,
             0, 1, 0
         )
@@ -70,6 +89,17 @@ class App:
         glMatrixMode(GL_MODELVIEW)
 
     def __keyboard(self, key, x, y):
+        key = key.decode("utf-8")
+
+        if key == 'a':
+            self.camera_theta += self.camera_speed
+        if key == 'd':
+            self.camera_theta -= self.camera_speed
+
+        self.camera_theta %= 360
+
+        
+
         for object in self.objects:
             object.keyboard(key, x, y)
 

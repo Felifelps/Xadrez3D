@@ -6,8 +6,8 @@ class Board(Mesh):
         self.rotation_speed = rotation_speed
         self.textures = [
             'assets/chess_board1.png',
-            'assets/chess_board2.avif',
-            'assets/chess_board3.jpg',
+            'assets/chess_board2.png',
+            'assets/chess_board3.png',
         ]
         self.current_texture_index = 0
 
@@ -21,13 +21,6 @@ class Board(Mesh):
         
 
     def keyboard(self, key, x, y):
-        key = key.decode("utf-8")
-
-        if key == "a": self.rot[1] -= self.rotation_speed
-        if key == "d": self.rot[1] += self.rotation_speed
-        if key == "w": self.rot[2] += self.rotation_speed
-        if key == "s": self.rot[2] -= self.rotation_speed
-
         if key == "t":
             self.current_texture_index = (self.current_texture_index + 1) % len(self.textures)
             self.texture_id = self.load_texture(self.textures[self.current_texture_index])

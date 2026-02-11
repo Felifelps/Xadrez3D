@@ -1,16 +1,12 @@
-# CUBO/PRANCHA 1x1x0.1 COM UVS CORRETOS
+v -1  0 -1  
+v  1  0 -1  
+v  1  0  1  
+v -1  0  1  
 
-v -0.5  0.05 -0.5  
-v  0.5  0.05 -0.5  
-v  0.5  0.05  0.5  
-v -0.5  0.05  0.5  
-
-v -0.5 0 -0.5 
-v  0.5 0 -0.5 
-v  0.5 0  0.5 
-v -0.5 0  0.5
-
-# UVs (4 para cada face → 24 no total)
+v -1 -0.1 -1 
+v  1 -0.1 -1 
+v  1 -0.1  1 
+v -1 -0.1  1
 
 # Topo (1–4)
 vt 0 0  
@@ -24,7 +20,7 @@ vt 1 0
 vt 1 1  
 vt 0 1  
 
-# Frente (9–12) -> todos apontam para o centro do quadrado escolhido
+# Frente (9–12)
 vt 1 1  
 vt 1 1  
 vt 1 1  

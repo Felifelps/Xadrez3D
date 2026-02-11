@@ -53,7 +53,10 @@ class Mesh:
                     norms.append(self.normals[fvn[i]])
 
             for i in range(3):
-                uvs.append(self.texcoords[fvt[i]])
+                index = fvt[i]
+                if not index:
+                    break
+                uvs.append(self.texcoords[index])
 
         # ensure contiguous float32 arrays
         self.va_vertices = np.ascontiguousarray(verts, dtype=np.float32)
@@ -220,22 +223,3 @@ class Mesh:
     def mouse(self, button, state, x, y): pass
     def motion(self, x, y): pass
     def passive_motion(self, x, y): pass
-
-
-class Visualizable(Mesh):
-    def __init__(self, obj_path, rotation_speed=10, pos=(0, 0, 0), rot=(0, 0, 0), scale=1):
-        super().__init__(obj_path, pos=pos, rot=rot, scale=scale)
-        self.rotation_speed = rotation_speed
-        self.turn_left = False
-        self.turn_right = False
-        self.tilt_up = False
-        self.tilt_down = False
-
-    def keyboard(self, key, x, y):
-        key = key.decode("utf-8")
-        if key == "a": self.rot[1] += self.rotation_speed
-        if key == "d": self.rot[1] -= self.rotation_speed
-        if key == "w": self.rot[0] += self.rotation_speed
-        if key == "s": self.rot[0] -= self.rotation_speed
-
-        return super().keyboard(key, x, y)
