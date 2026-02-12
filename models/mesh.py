@@ -12,6 +12,7 @@ class Mesh:
         rot=(0, 0, 0),
         color=(1, 1, 1),
         scale=(1, 1, 1),
+        opacity=1,
         gl_type=GL_TRIANGLES,
     ):
         vertex, texcoords, normals, faces_v, faces_vt, faces_vn = self.load_obj(obj_path)
@@ -24,6 +25,7 @@ class Mesh:
         self.faces_v = faces_v
         self.faces_vt = faces_vt
         self.faces_vn = faces_vn
+        self.opacity = opacity
 
         self.pos = list(pos)
         self.rot = list(rot)
@@ -38,9 +40,9 @@ class Mesh:
         self.bbox_min = (min(xs), min(ys), min(zs))
         self.bbox_max = (max(xs), max(ys), max(zs))
 
-        self.__compute_continuous_arrays()
+        self.__compute_contiguous_arrays()
 
-    def __compute_continuous_arrays(self):
+    def __compute_contiguous_arrays(self):
         verts = []
         norms = []
         uvs = []
@@ -120,7 +122,7 @@ class Mesh:
     def draw(self):
         glPushMatrix()
 
-        glColor3f(*self.color)
+        glColor4f(self.color[0], self.color[1], self.color[2], self.opacity)
 
         if self.texture_id:
             glEnable(GL_TEXTURE_2D)
@@ -170,7 +172,8 @@ class Mesh:
         with open(path, "r") as f:
             for line in f:
                 if line.startswith("v "):
-                    _, x, y, z = line.split()
+                    parts = line.split()
+                    x, y, z = parts[1:4]
                     vertex.append((float(x), float(y), float(z)))
 
                 elif line.startswith("vt "):

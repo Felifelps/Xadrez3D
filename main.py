@@ -18,16 +18,21 @@ class App:
 
         self.__init_opengl()
 
+        positions = [
+            -0.875,
+            -0.625,
+            -0.375,
+            -0.125,
+            0.875,
+            0.625,
+            0.375,
+            0.125,
+        ]
+
         self.objects: list[Mesh] = [
             Board(),
-            Tower(pos=(-0.875, 0, -0.875)),
-            Tower(pos=(-0.625, 0, -0.625)),
-            Tower(pos=(-0.375, 0, -0.375)),
-            Tower(pos=(-0.125, 0, -0.125)),
-            Tower(pos=(0.875, 0, 0.875)),
-            Tower(pos=(0.625, 0, 0.625)),
-            Tower(pos=(0.375, 0, 0.375)),
-            Tower(pos=(0.125, 0, 0.125)),
+            Tower(pos=(positions[0], 0, positions[2])),
+            Highlight(pos=(positions[1], 0, positions[1])),
             Knight(pos=(0,0,0)),
         ]
 
@@ -115,14 +120,12 @@ class App:
         glutPostRedisplay()
 
     def __mouse(self, button, state, x, y):
-        # Zoom com scroll
         if state == GLUT_DOWN:
-            if button == 3:      # scroll up
+            if button == 3:
                 self.camera_distance -= 0.1
-            elif button == 4:    # scroll down
+            elif button == 4:
                 self.camera_distance += 0.1
 
-            # Limites opcionais
             self.camera_distance = max(2.0, min(self.camera_distance, 3.0))
 
         if button == GLUT_LEFT_BUTTON and state == GLUT_DOWN:
