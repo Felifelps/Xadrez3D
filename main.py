@@ -30,10 +30,9 @@ class App:
         ]
 
         self.objects: list[Mesh] = [
-            Board(),
-            Tower(pos=(positions[0], 0, positions[2])),
-            Highlight(pos=(positions[1], 0, positions[1])),
-            Knight(pos=(0,0,0)),
+            BoardModel(),
+            RookModel(pos=(positions[0], 0, positions[2])),
+            HighlightModel(pos=(positions[1], 0, positions[1])),
         ]
 
     def __init_opengl(self):
@@ -131,14 +130,11 @@ class App:
         if button == GLUT_LEFT_BUTTON and state == GLUT_DOWN:
             ray_origin, ray_direction = self.__make_ray_from_mouse(x, y)
 
-            print("Ray origin:", ray_origin)
-            print("Ray direction:", ray_direction)
-
             clicked = None
             min_dist = 1e9
 
             for obj in self.objects:
-                if isinstance(obj, Board):
+                if isinstance(obj, BoardModel):
                     continue
 
                 hit, dist = obj.intersect_ray(ray_origin, ray_direction)
@@ -148,7 +144,7 @@ class App:
                     min_dist = dist
 
             if clicked:
-                print(f"👉 Você clicou em: {clicked}")
+                obj.on_click()
 
         glutPostRedisplay()
     
