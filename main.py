@@ -15,7 +15,7 @@ class App:
         self.__init_opengl()
 
         # Carrega objeto
-        obj = Visualizable("Rainha.obj")
+        obj = Visualizable("Torre.obj")
         self.objects.append(obj)
 
     def __init_opengl(self):
