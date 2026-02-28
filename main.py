@@ -5,6 +5,7 @@ from OpenGL.GLU import *
 from OpenGL.GLUT import *
 
 from models import *
+from game import *
 
 WIDTH, HEIGHT = 800, 600
 CLEAR_COLOR = (0.1, 0.1, 0.1, 1.0)
@@ -18,22 +19,9 @@ class App:
 
         self.__init_opengl()
 
-        positions = [
-            -0.875,
-            -0.625,
-            -0.375,
-            -0.125,
-            0.875,
-            0.625,
-            0.375,
-            0.125,
-        ]
+        self.game = Game()
 
-        self.objects: list[Mesh] = [
-            BoardModel(),
-            RookModel(pos=(positions[0], 0, positions[2])),
-            HighlightModel(pos=(positions[1], 0, positions[1])),
-        ]
+        self.objects: list[Mesh] = [BoardModel(), Rook()]
 
     def __init_opengl(self):
         glutInit()

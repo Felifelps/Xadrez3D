@@ -2,6 +2,17 @@ import numpy as np
 from OpenGL.GL import *
 
 
+POSITIONS = [
+    -0.875,
+    -0.625,
+    -0.375,
+    -0.125,
+    0.875,
+    0.625,
+    0.375,
+    0.125,
+]
+
 def compute_normal(a, b, c):
     ab = np.subtract(b, a)
     ac = np.subtract(c, a)
@@ -93,3 +104,6 @@ def load_obj(path):
                 faces_vn.append([face_vn[0], face_vn[2], face_vn[3]])
 
     return vertex, texcoords, normals, faces_v, faces_vt, faces_vn
+
+def convert_piece_pos(x, y):
+    return POSITIONS[x], POSITIONS[y]
