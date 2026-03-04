@@ -1,10 +1,10 @@
 from . import ChessException
 from models.mesh import Mesh
 
-class Piece(Mesh):
+class Piece:
     symbol = "-"
 
-    def __init__(self, color = 1, pos=(0,0,0), rot=(0,0,0), scale=(1, 1, 1)):
+    def __init__(self, color = 1):
         self.game = None
         self.x = 0
         self.y = 0
@@ -18,11 +18,8 @@ class Piece(Mesh):
     def can_move_to(self, x, y):
         raise NotImplementedError()
 
-    def print(self):
-        return f"{self.symbol}{self.color}"
-
     def __str__(self):
-        return f"{self.symbol}{self.color}(pos={self.pos})"
+        return f"{self.symbol}{self.color}"
 
     def is_path_clear_line(self, x1, y1, x2, y2):
         if x1 == x2:
@@ -94,15 +91,6 @@ class Pawn(Piece):
 
 class Rook(Piece):
     symbol = 'r'
-
-    def __init__(self, color, pos=(0,0,0), rot=(0,0,0), scale=(1, 1, 1)):
-        super().__init__(
-            obj_path="assets/rook/rook.obj",
-            color=(color, color, color),
-            pos=pos,
-            rot=rot,
-            scale=[s * 0.25 for s in scale],
-        )
 
     def can_move_to(self, x, y):
         if self.x == x or self.y == y:

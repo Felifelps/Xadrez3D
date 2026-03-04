@@ -10,6 +10,39 @@ from game import *
 WIDTH, HEIGHT = 800, 600
 CLEAR_COLOR = (0.1, 0.1, 0.1, 1.0)
 
+PIECE_MESH_DATA = {
+    "r": {
+        "obj_path": "assets/rook/rook.obj",
+        "rot": (0, 0, 0),
+        "scale": (0.25, 0.25, 0.25)
+    },
+    "k": {
+        "obj_path": "assets/rook/rook.obj",
+        "rot": (0, 0, 0),
+        "scale": (0.25, 0.25, 0.25)
+    },
+    "b": {
+        "obj_path": "assets/rook/rook.obj",
+        "rot": (0, 0, 0),
+        "scale": (0.25, 0.25, 0.25)
+    },
+    "Q": {
+        "obj_path": "assets/rook/rook.obj",
+        "rot": (0, 0, 0),
+        "scale": (0.25, 0.25, 0.25)
+    },
+    "K": {
+        "obj_path": "assets/rook/rook.obj",
+        "rot": (0, 0, 0),
+        "scale": (0.25, 0.25, 0.25)
+    },
+    "p": {
+        "obj_path": "assets/rook/rook.obj",
+        "rot": (0, 0, 0),
+        "scale": (0.25, 0.25, 0.25)
+    },
+}
+
 class App:
     def __init__(self):
         self.camera_distance = 2.5
@@ -21,7 +54,19 @@ class App:
 
         self.game = Game()
 
-        self.objects: list[Mesh] = [BoardModel(), Rook()]
+        def gen_mesh(piece):
+            color = piece.color if piece.color == 1 else 0.25
+            return Mesh(
+                **PIECE_MESH_DATA[piece.symbol],
+                pos=convert_piece_pos(*piece.pos),
+                color=(color, color, color),
+            )
+
+        self.piece_meshes = {p: gen_mesh(p) for p in self.game.get_all_pieces()}
+
+        print(self.game)
+
+        self.objects: list[Mesh] = [BoardModel(), *self.piece_meshes.values()]
 
     def __init_opengl(self):
         glutInit()
@@ -177,7 +222,10 @@ class App:
         glutPostRedisplay()
 
     def run(self):
-        glutMainLoop()
+        try:
+            glutMainLoop()
+        except KeyboardInterrupt:
+            pass
 
 if __name__ == '__main__':
     app = App()

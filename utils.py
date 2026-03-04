@@ -106,4 +106,4 @@ def load_obj(path):
     return vertex, texcoords, normals, faces_v, faces_vt, faces_vn
 
 def convert_piece_pos(x, y):
-    return POSITIONS[x], POSITIONS[y]
+    return [POSITIONS[y], 0, POSITIONS[x]]

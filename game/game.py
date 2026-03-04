@@ -6,7 +6,8 @@ from .piece import *
 
 
 class Game:
-    def __init__(self):
+    def __init__(self, on_reset=lambda: print("on_reset")):
+        self.on_reset = on_reset
         self.reset()
     
     def reset(self):
@@ -18,7 +19,7 @@ class Game:
             1: King(color=1),
         }
 
-        self.pieces: list[Piece] = [
+        self.board: list[Piece] = [
             [Rook(color=0), Knight(color=0), Bishop(color=0), Queen(color=0), self.kings[0], Bishop(color=0), Knight(color=0), Rook(color=0)],
             [Pawn(color=0) for _ in range(8)],
             [Empty() for _ in range(8)],
@@ -31,18 +32,29 @@ class Game:
 
         for x in range(8):
             for y in range(8):
-                piece = self.pieces[x][y]
+                piece = self.board[x][y]
                 piece.x, piece.y = x, y
                 piece.board = self
 
+        self.on_reset()
+
     def get_piece(self, x, y):
-        return self.pieces[x][y]
+        return self.board[x][y]
+
+    def get_all_pieces(self):
+        pieces = []
+        for row in self.board:
+            for piece in row:
+                if isinstance(piece, Empty):
+                    continue
+                pieces.append(piece)
+        return pieces
 
     def get_king_pos(self, color):
         return self.kings[color].pos
 
     def is_attacked_by(self, x, y, attacker_color):
-        for row in self.pieces:
+        for row in self.board:
             for piece in row:
                 if piece.color == attacker_color:
                     if piece.can_move_to(x, y):
@@ -59,19 +71,19 @@ class Game:
         sx, sy = start
         ex, ey = end
 
-        piece = self.pieces[sx][sy]
-        captured = self.pieces[ex][ey]
+        piece = self.board[sx][sy]
+        captured = self.board[ex][ey]
 
-        self.pieces[ex][ey] = piece
-        self.pieces[sx][sy] = Empty()
+        self.board[ex][ey] = piece
+        self.board[sx][sy] = Empty()
 
         old_x, old_y = piece.x, piece.y
         piece.x, piece.y = ex, ey
 
         yield
 
-        self.pieces[sx][sy] = piece
-        self.pieces[ex][ey] = captured
+        self.board[sx][sy] = piece
+        self.board[ex][ey] = captured
         piece.x, piece.y = old_x, old_y
 
     def move(self, start, end):
@@ -104,8 +116,8 @@ class Game:
             if self.is_in_check(self.current_player):
                 raise ChessException("Movimento ilegal: deixa o rei em xeque")
 
-        self.pieces[ex][ey] = piece
-        self.pieces[sx][sy] = Empty()
+        self.board[ex][ey] = piece
+        self.board[sx][sy] = Empty()
 
         piece.x, piece.y = ex, ey
         piece.has_moved = True
@@ -129,7 +141,7 @@ class Game:
             promoted.x, promoted.y = ex, ey
             promoted.board = self
 
-            self.pieces[ex][ey] = promoted
+            self.board[ex][ey] = promoted
 
     def handle_en_passant(self, piece, target, start, end):
         if not isinstance(piece, Pawn):
@@ -141,9 +153,9 @@ class Game:
         can_be_en_passant = isinstance(target, Empty) and abs(ey - sy) == 1 and ex - sx == (-1 if piece.color == 0 else 1)
 
         if can_be_en_passant and self.last_double_pawn == (sx, ey):
-            self.pieces[sx][ey] = Empty()
-            self.pieces[ex][ey] = piece
-            self.pieces[sx][sy] = Empty()
+            self.board[sx][ey] = Empty()
+            self.board[ex][ey] = piece
+            self.board[sx][sy] = Empty()
 
             piece.x, piece.y = ex, ey
             self.last_double_pawn = None
@@ -166,7 +178,7 @@ class Game:
 
         # Roque pequeno
         if ey == sy + 2:
-            rook = self.pieces[sx][7]
+            rook = self.board[sx][7]
 
             if not isinstance(rook, Rook) or rook.color != piece.color:
                 raise ChessException("Roque inválido")
@@ -174,7 +186,7 @@ class Game:
             if piece.has_moved or rook.has_moved:
                 raise ChessException("Rei ou torre já se moveram")
 
-            if any(not isinstance(self.pieces[sx][c], Empty) for c in [5, 6]):
+            if any(not isinstance(self.board[sx][c], Empty) for c in [5, 6]):
                 raise ChessException("Caminho bloqueado para roque")
             
             with self.simulate_move(start, (sx, 5)):
@@ -185,12 +197,12 @@ class Game:
                 if self.is_in_check(piece.color):
                     raise ChessException("Rei terminaria em xeque")
 
-            self.pieces[sx][sy] = Empty()
-            self.pieces[sx][6] = piece
+            self.board[sx][sy] = Empty()
+            self.board[sx][6] = piece
             piece.x, piece.y = sx, 6
 
-            self.pieces[sx][7] = Empty()
-            self.pieces[sx][5] = rook
+            self.board[sx][7] = Empty()
+            self.board[sx][5] = rook
             rook.x, rook.y = sx, 5
 
             piece.has_moved = True
@@ -202,7 +214,7 @@ class Game:
 
         # Roque grande
         if ey == sy - 2:
-            rook = self.pieces[sx][0]
+            rook = self.board[sx][0]
 
             if not isinstance(rook, Rook) or rook.color != piece.color:
                 raise ChessException("Roque inválido")
@@ -210,7 +222,7 @@ class Game:
             if piece.has_moved or rook.has_moved:
                 raise ChessException("Rei ou torre já se moveram")
 
-            if any(not isinstance(self.pieces[sx][c], Empty) for c in [1, 2, 3]):
+            if any(not isinstance(self.board[sx][c], Empty) for c in [1, 2, 3]):
                 raise ChessException("Caminho bloqueado para roque")
 
             with self.simulate_move(start, (sx, 3)):
@@ -221,12 +233,12 @@ class Game:
                 if self.is_in_check(piece.color):
                     raise ChessException("Rei terminaria em xeque")
 
-            self.pieces[sx][sy] = Empty()
-            self.pieces[sx][2] = piece
+            self.board[sx][sy] = Empty()
+            self.board[sx][2] = piece
             piece.x, piece.y = sx, 2
 
-            self.pieces[sx][0] = Empty()
-            self.pieces[sx][3] = rook
+            self.board[sx][0] = Empty()
+            self.board[sx][3] = rook
             rook.x, rook.y = sx, 3
 
             piece.has_moved = True
@@ -242,9 +254,9 @@ class Game:
         order = 1 # if self.current_player == 1 else -1
 
         result = "    0  1  2  3  4  5  6  7\n"
-        for index, row in enumerate(self.pieces[::order]):
+        for index, row in enumerate(self.board[::order]):
             result += f"{index} | "
             for piece in row[::order]:
-                result += piece.print() + " "
+                result += f"{piece} "
             result += "|\n"
         return result

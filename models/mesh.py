@@ -13,6 +13,7 @@ class Mesh:
         color=(1, 1, 1),
         scale=(1, 1, 1),
         opacity=1,
+        on_click=None,
     ):
         vertex, texcoords, normals, faces_v, faces_vt, faces_vn = load_obj(obj_path)
 
@@ -24,6 +25,9 @@ class Mesh:
         self.faces_vt = faces_vt
         self.faces_vn = faces_vn
         self.opacity = opacity
+
+        if on_click:
+            self.on_click = on_click
 
         self.pos = list(pos)
         self.rot = list(rot)
