@@ -45,18 +45,26 @@ PIECE_MESH_DATA = {
 
 class App:
     def __init__(self):
-        self.camera_distance = 2.5
-        self.camera_theta = 90
+        self.base_camera_theta = 90
+        self.min_camera_distance = 2
+        self.max_camera_distance = 5
+        self.is_moving = False
+
+        self.camera_distance = self.min_camera_distance
+        self.camera_theta = self.base_camera_theta
         self.camera_y = 1.5
         self.camera_speed = 5
 
         self.__init_opengl()
 
         self.board_model = BoardModel()
-        self.game = Game()
+        self.game: Game = Game(on_reset=self.on_reset_game)
+        self.game.reset()
+
+    def on_reset_game(self):
+        self.checkmate = False
         self.hovered_piece = None
         self.selected_piece = None
-
         self.piece_meshes = {}
         self.highlight_meshes = []
 
@@ -71,25 +79,41 @@ class App:
             )
 
     def handle_piece_click(self, piece):
+        print("Clicou em", piece)
+        self.highlight_meshes.clear()
+
+        if self.selected_piece and self.selected_piece.color != piece.color:
+            self.handle_move(self.selected_piece.pos, piece.pos, piece)
+            return
+
+        if self.checkmate or piece.color != self.game.current_player:
+            return
+
         self.clear_selection()
 
         self.selected_piece = piece
+
         for pos in piece.get_legal_moves():
-            self.highlight_meshes.append(
-                HighlightModel(
-                    pos=convert_piece_pos(*pos),
-                    on_click=lambda p=pos: self.handle_move(piece.pos, p)
-                )
+
+            highlight = HighlightModel(
+                target=self.game.get_piece(*pos).color == 1 - self.selected_piece.color,
+                pos=convert_piece_pos(*pos),
+                on_click=lambda p=pos: self.handle_move(piece.pos, p, self.game.get_piece(*pos))
             )
+    
+            self.highlight_meshes.append(highlight)
 
-        
-
-    def handle_move(self, start, end):
-        print(start, end)
+    def handle_move(self, start, end, target_piece):
         try:
             self.game.move(start, end)
-            self.clear_selection()
+            self.piece_meshes.pop(target_piece, "It was empty")
 
+            self.clear_selection()
+        except InCheckException:
+            self.clear_selection()
+        except CheckmateException:
+            self.checkmate = True
+            self.clear_selection()
         except ChessException as e:
             print(e)
 
@@ -148,8 +172,15 @@ class App:
             highlight_mesh.draw()
 
         glutSwapBuffers()
+        glutPostRedisplay()
 
     def __position_camera(self):
+        if not self.is_moving:
+            modifier = -1 if self.game.current_player == 0 else 1
+            target_theta = self.base_camera_theta * modifier
+
+            self.camera_theta += (target_theta - self.camera_theta) * 0.075
+
         theta = radians(self.camera_theta)
 
         x = self.camera_distance * sin(theta)
@@ -173,14 +204,21 @@ class App:
     def __keyboard(self, key, x, y):
         key = key.decode("utf-8")
 
-        if key == 'q':
-            self.game.move((6, 4), (4, 4))
-        if key == 'a':
-            self.camera_theta += self.camera_speed
-        if key == 'd':
-            self.camera_theta -= self.camera_speed
+        if key == 'r':
+            self.game.reset()
+
+        if key == "m":
+            self.is_moving = not self.is_moving
+
+        if self.is_moving:
+            if key == 'a':
+                self.camera_theta += self.camera_speed
+            if key == 'd':
+                self.camera_theta -= self.camera_speed
 
         self.camera_theta %= 360
+
+        self.board_model.keyboard(key, x, y)
 
         for piece_mesh in self.piece_meshes.values():
             piece_mesh.keyboard(key, x, y)
@@ -227,7 +265,7 @@ class App:
         viewport = glGetIntegerv(GL_VIEWPORT)
 
         # Inverte Y da tela: OpenGL usa origem no canto inferior
-        mouse_y = viewport[3] - mouse_y
+        mouse_y = viewport[3] - mouse_y - 1
 
         # Ponto no near plane
         near_point = gluUnProject(mouse_x, mouse_y, 0.0, modelview, projection, viewport)

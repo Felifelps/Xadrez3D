@@ -76,33 +76,31 @@ class Piece:
 
 class Pawn(Piece):
     symbol = 'p'
+    def __init__(self, color=1):
+        super().__init__(color)
+        self.direction = 1 if self.color == 0 else -1
+        self.start_row = 1 if self.color == 0 else 6
 
     def can_move_to(self, x, y):
-        direction = 1 if self.color == 0 else -1
-        start_row = 1 if self.color == 0 else 6
-
         dx = x - self.x
         dy = abs(y - self.y)
 
         target = self.game.get_piece(x, y)
 
-        self.game.last_double_pawn = (x, y)
-
-        if dy == 0 and dx == direction and isinstance(target, Empty):
+        if dy == 0 and dx == self.direction and isinstance(target, Empty):
             return True
 
-        if dy == 0 and dx == 2 * direction and self.x == start_row:
-            mid_x = self.x + direction
-            if isinstance(self.game.get_piece(mid_x, y), Empty) and isinstance(target, Empty):
-                return True
+        if dy == 0 and dx == 2 * self.direction and self.x == self.start_row:
+            mid_x = self.x + self.direction
+            return isinstance(self.game.get_piece(mid_x, y), Empty) and isinstance(target, Empty)
 
-        if dy == 1 and dx == direction and target.color in (0, 1) and target.color != self.color:
+        if dy == 1 and dx == self.direction and target.color in (0,1) and target.color != self.color:
             return True
 
-        self.game.last_double_pawn = None
+        if dy == 1 and dx == self.direction and isinstance(target, Empty):
+            return self.game.last_double_pawn == (self.x, y)
 
         return False
-
 
 class Rook(Piece):
     symbol = 'r'
@@ -139,7 +137,33 @@ class King(Piece):
         dx = abs(x - self.x)
         dy = abs(y - self.y)
 
-        return max(dx, dy) == 1
+        # movimento normal
+        if dx <= 1 and dy <= 1:
+            return True
+
+        # roque
+        if dx == 0 and dy == 2:
+            if self.has_moved:
+                return False
+
+            rook_y = 7 if y > self.y else 0
+            rook = self.game.get_piece(self.x, rook_y)
+
+            if not isinstance(rook, Rook):
+                return False
+
+            if rook.color != self.color or rook.has_moved:
+                return False
+
+            # verificar caminho livre
+            step = 1 if y > self.y else -1
+            for col in range(self.y + step, rook_y, step):
+                if not isinstance(self.game.get_piece(self.x, col), Empty):
+                    return False
+
+            return True
+
+        return False
 
 
 class Empty(Piece):
