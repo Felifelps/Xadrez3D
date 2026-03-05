@@ -46,27 +46,60 @@ PIECE_MESH_DATA = {
 class App:
     def __init__(self):
         self.camera_distance = 2.5
-        self.camera_theta = 0
+        self.camera_theta = 90
         self.camera_y = 1.5
         self.camera_speed = 5
 
         self.__init_opengl()
 
+        self.board_model = BoardModel()
         self.game = Game()
+        self.hovered_piece = None
+        self.selected_piece = None
 
-        def gen_mesh(piece):
+        self.piece_meshes = {}
+        self.highlight_meshes = []
+
+        for piece in self.game.get_all_pieces():
             color = piece.color if piece.color == 1 else 0.25
-            return Mesh(
+
+            self.piece_meshes[piece] = Mesh(
                 **PIECE_MESH_DATA[piece.symbol],
                 pos=convert_piece_pos(*piece.pos),
                 color=(color, color, color),
+                on_click=lambda p=piece: self.handle_piece_click(p)
             )
 
-        self.piece_meshes = {p: gen_mesh(p) for p in self.game.get_all_pieces()}
+    def handle_piece_click(self, piece):
+        self.clear_selection()
 
-        print(self.game)
+        self.selected_piece = piece
+        for pos in piece.get_legal_moves():
+            self.highlight_meshes.append(
+                HighlightModel(
+                    pos=convert_piece_pos(*pos),
+                    on_click=lambda p=pos: self.handle_move(piece.pos, p)
+                )
+            )
 
-        self.objects: list[Mesh] = [BoardModel(), *self.piece_meshes.values()]
+        
+
+    def handle_move(self, start, end):
+        print(start, end)
+        try:
+            self.game.move(start, end)
+            self.clear_selection()
+
+        except ChessException as e:
+            print(e)
+
+    def clear_selection(self):
+        self.selected_piece = None
+        self.highlight_meshes.clear()
+
+    @property
+    def objects(self):
+        return list(self.piece_meshes.values()) + self.highlight_meshes
 
     def __init_opengl(self):
         glutInit()
@@ -96,6 +129,7 @@ class App:
         glutSpecialFunc(lambda key, x, y: self.__special_keys(key, x, y))
         glutMotionFunc(lambda x, y: self.__motion(x, y))
         glutPassiveMotionFunc(lambda x, y: self.__passive_motion(x, y))
+        glutCloseFunc(quit)
 
     def __display(self):
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
@@ -104,8 +138,14 @@ class App:
 
         self.__position_camera()
 
-        for object in self.objects:
-            object.draw()
+        self.board_model.draw()
+
+        for piece in self.game.get_all_pieces():
+            self.piece_meshes[piece].pos = convert_piece_pos(*piece.pos)
+            self.piece_meshes[piece].draw()
+
+        for highlight_mesh in self.highlight_meshes:
+            highlight_mesh.draw()
 
         glutSwapBuffers()
 
@@ -133,6 +173,8 @@ class App:
     def __keyboard(self, key, x, y):
         key = key.decode("utf-8")
 
+        if key == 'q':
+            self.game.move((6, 4), (4, 4))
         if key == 'a':
             self.camera_theta += self.camera_speed
         if key == 'd':
@@ -140,14 +182,14 @@ class App:
 
         self.camera_theta %= 360
 
-        for object in self.objects:
-            object.keyboard(key, x, y)
+        for piece_mesh in self.piece_meshes.values():
+            piece_mesh.keyboard(key, x, y)
 
         glutPostRedisplay()
 
     def __special_keys(self, key, x, y):
-        for object in self.objects:
-            object.special_keys(key, x, y)
+        for piece_mesh in self.piece_meshes.values():
+            piece_mesh.special_keys(key, x, y)
 
         glutPostRedisplay()
 
@@ -166,21 +208,18 @@ class App:
             clicked = None
             min_dist = 1e9
 
-            for obj in self.objects:
-                if isinstance(obj, BoardModel):
-                    continue
-
-                hit, dist = obj.intersect_ray(ray_origin, ray_direction)
+            for object in self.objects:
+                hit, dist = object.intersect_ray(ray_origin, ray_direction)
 
                 if hit and dist < min_dist:
-                    clicked = obj
+                    clicked = object
                     min_dist = dist
 
             if clicked:
-                obj.on_click()
+                clicked.on_click()
 
         glutPostRedisplay()
-    
+
     def __make_ray_from_mouse(self, mouse_x, mouse_y):
         # Pegando matrizes OpenGL atuais
         modelview = glGetDoublev(GL_MODELVIEW_MATRIX)
@@ -210,22 +249,36 @@ class App:
         return near_point, dir_vector
 
     def __motion(self, x, y):
-        for object in self.objects:
-            object.motion(x, y)
+        for piece_mesh in self.piece_meshes.values():
+            piece_mesh.motion(x, y)
 
         glutPostRedisplay()
 
     def __passive_motion(self, x, y):
-        for object in self.objects:
-            object.passive_motion(x, y)
+        ray_origin, ray_direction = self.__make_ray_from_mouse(x, y)
+
+        hovered = None
+        min_dist = 1e9
+
+        for obj in self.objects:
+            hit, dist = obj.intersect_ray(ray_origin, ray_direction)
+            if hit and dist < min_dist:
+                hovered = obj
+                min_dist = dist
+
+        if hovered != self.hovered_piece:
+            if self.hovered_piece:
+                self.hovered_piece.on_hover(False)
+
+            if hovered:
+                hovered.on_hover(True)
+
+            self.hovered_piece = hovered
 
         glutPostRedisplay()
 
     def run(self):
-        try:
-            glutMainLoop()
-        except KeyboardInterrupt:
-            pass
+        glutMainLoop()
 
 if __name__ == '__main__':
     app = App()

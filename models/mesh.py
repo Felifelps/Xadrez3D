@@ -13,7 +13,7 @@ class Mesh:
         color=(1, 1, 1),
         scale=(1, 1, 1),
         opacity=1,
-        on_click=None,
+        on_click=lambda: None,
     ):
         vertex, texcoords, normals, faces_v, faces_vt, faces_vn = load_obj(obj_path)
 
@@ -26,12 +26,12 @@ class Mesh:
         self.faces_vn = faces_vn
         self.opacity = opacity
 
-        if on_click:
-            self.on_click = on_click
+        self.on_click = on_click
 
         self.pos = list(pos)
         self.rot = list(rot)
         self.color = list(color)
+        self.base_color = list(color)
         self.scale = list(scale)
         self.center = self.__compute_center()
 
@@ -187,4 +187,8 @@ class Mesh:
     def mouse(self, button, state, x, y): pass
     def motion(self, x, y): pass
     def passive_motion(self, x, y): pass
-    def on_click(self): pass
+
+    def on_hover(self, is_hovered):
+        value = 1.5 if is_hovered else 1
+        self.color = [v * value for v in self.base_color]
+

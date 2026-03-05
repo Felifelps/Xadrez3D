@@ -34,7 +34,7 @@ class Game:
             for y in range(8):
                 piece = self.board[x][y]
                 piece.x, piece.y = x, y
-                piece.board = self
+                piece.game = self
 
         self.on_reset()
 
@@ -128,6 +128,8 @@ class Game:
 
         if self.is_in_check(self.current_player):
             print("⚠️ XEQUE!")
+
+        print("Movi", piece)
 
     def handle_promotion(self, piece, end):
         if not isinstance(piece, Pawn):

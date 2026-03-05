@@ -25,14 +25,14 @@ class Piece:
         if x1 == x2:
             step = 1 if y2 > y1 else -1
             for y in range(y1 + step, y2, step):
-                if not isinstance(self.game.current_playerget_piece(x1, y), Empty):
+                if not isinstance(self.game.get_piece(x1, y), Empty):
                     return False
             return True
 
         if y1 == y2:
             step = 1 if x2 > x1 else -1
             for x in range(x1 + step, x2, step):
-                if not isinstance(self.game.current_playerget_piece(x, y1), Empty):
+                if not isinstance(self.game.get_piece(x, y1), Empty):
                     return False
             return True
 
@@ -50,13 +50,29 @@ class Piece:
 
         x, y = x1 + step_x, y1 + step_y
         while x != x2 and y != y2:
-            if not isinstance(self.get_piece(x, y), Empty):
+            if not isinstance(self.game.get_piece(x, y), Empty):
                 return False
 
             x += step_x
             y += step_y
 
         return True
+
+    def get_legal_moves(self):
+        moves = []
+        for x in range(8):
+            for y in range(8):
+                if (x, y) == (self.x, self.y):
+                    continue
+
+                if not self.can_move_to(x, y):
+                    continue
+
+                target = self.game.get_piece(x, y)
+                if isinstance(target, Empty) or target.color != self.color:
+                    moves.append((x, y))
+
+        return moves
 
 class Pawn(Piece):
     symbol = 'p'
@@ -75,7 +91,6 @@ class Pawn(Piece):
         if dy == 0 and dx == direction and isinstance(target, Empty):
             return True
 
-        print(self, target, dx, dy, direction, start_row)
         if dy == 0 and dx == 2 * direction and self.x == start_row:
             mid_x = self.x + direction
             if isinstance(self.game.get_piece(mid_x, y), Empty) and isinstance(target, Empty):

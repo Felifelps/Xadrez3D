@@ -1,16 +1,15 @@
 import numpy as np
 from OpenGL.GL import *
 
-
 POSITIONS = [
     -0.875,
     -0.625,
     -0.375,
     -0.125,
-    0.875,
-    0.625,
-    0.375,
     0.125,
+    0.375,
+    0.625,
+    0.875,
 ]
 
 def compute_normal(a, b, c):
@@ -106,4 +105,4 @@ def load_obj(path):
     return vertex, texcoords, normals, faces_v, faces_vt, faces_vn
 
 def convert_piece_pos(x, y):
-    return [POSITIONS[y], 0, POSITIONS[x]]
+    return [POSITIONS[x], 0, POSITIONS[y]]
