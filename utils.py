@@ -5,7 +5,7 @@ from constants import POSITIONS
 
 
 def convert_piece_pos(x, y):
-    return [POSITIONS[x], 0, POSITIONS[y]]
+    return [POSITIONS[x], 0, POSITIONS[7 - y]]
 
 def make_ray_from_mouse(mouse_x: float, mouse_y: float):
 

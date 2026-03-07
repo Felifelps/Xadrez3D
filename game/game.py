@@ -347,3 +347,4 @@ class Game:
             result += "|\n"
 
         return result
+    

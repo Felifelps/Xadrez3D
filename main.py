@@ -95,6 +95,7 @@ class App(OpenGLCameraApp):
     def handle_move(self, start, end):
         try:
             self.game.move(start, end)
+            print(self.game)
             self.centralizing_camera = True
         except InCheckException as e:
             print(e)
