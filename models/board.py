@@ -2,8 +2,7 @@ from OpenGL.GL import *
 from .mesh import Mesh
 
 class BoardModel(Mesh):
-    def __init__(self, rotation_speed=10, pos=(0, 0, 0), rot=(0, 0, 0), scale=(1, 1, 1)):
-        self.rotation_speed = rotation_speed
+    def __init__(self, pos=(0, 0, 0), rot=(0, 0, 0), scale=(1, 1, 1)):
 
         self.texture_paths = [
             'assets/board/chess_board1.png',

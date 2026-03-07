@@ -191,4 +191,3 @@ class Mesh:
     def on_hover(self, is_hovered):
         value = 1.5 if is_hovered else 1
         self.color = [v * value for v in self.base_color]
-

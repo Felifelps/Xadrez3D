@@ -7,10 +7,13 @@ from .piece import *
 
 class Game:
 
-    def __init__(self, on_reset=lambda: None):
+    def __init__(self, on_reset=lambda: None, on_move=lambda: None):
         self.on_reset = on_reset
+        self.on_move = on_move
 
     def reset(self):
+        self.moves = {}
+        self.current_move_index = 0
 
         self.last_double_pawn = None
         self.current_player = 1
@@ -149,6 +152,27 @@ class Game:
 
     # --------------------------------------------------
 
+    def undo(self):
+        move = self.moves.get(self.current_move_index - 1, None)
+
+        if not move:
+            return
+
+        self.current_move_index -= 1
+        piece, target, start, end = move
+
+        sx, sy = start
+        ex, ey = end
+
+        self.board[sx][sy] = piece
+        self.board[ex][ey] = target
+
+        piece.x, piece.y = start
+        target.x, target.y = end
+
+        self.on_move()
+        self.change_player()
+
     def move(self, start, end):
 
         validate_pos(start)
@@ -203,6 +227,11 @@ class Game:
         else:
             self.last_double_pawn = None
 
+        self.moves[self.current_move_index] = (piece, target, start, end)
+        self.current_move_index += 1
+
+        self.on_move()
+
         # trocar turno
         self.change_player()
 
@@ -250,8 +279,6 @@ class Game:
 
         if self.last_double_pawn != (sx, ey):
             return False
-
-        captured = self.board[sx][ey]
 
         with self.simulate_move(start, end):
 

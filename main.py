@@ -43,22 +43,38 @@ PIECE_MESH_DATA = {
     },
 }
 
+PIECE_COLORS = {
+    0: (
+        (0.25, 0.25, 0.25),
+        (0.6, 0.1, 0.15),
+        (0.5, 0.4, 0.3),
+    ),
+    1: (
+        (1, 1, 1),
+        (1, 1, 1),
+        (0.8, 0.7, 0.55),
+    ),
+}
+
 class App:
     def __init__(self):
         self.base_camera_theta = 90
-        self.min_camera_distance = 2
+        self.base_camera_phi = 45
+        self.min_camera_distance = 3
         self.max_camera_distance = 5
-        self.is_moving = False
+        self.camera_transition_rate = 0.075
+        self.centralizing_camera = False
 
         self.camera_distance = self.min_camera_distance
         self.camera_theta = self.base_camera_theta
-        self.camera_y = 1.5
+        self.camera_phi = self.base_camera_phi
+        self.camera_y = 2
         self.camera_speed = 5
 
         self.__init_opengl()
 
         self.board_model = BoardModel()
-        self.game: Game = Game(on_reset=self.on_reset_game)
+        self.game: Game = Game(on_reset=self.on_reset_game, on_move=self.update_pieces_meshes)
         self.game.reset()
 
     def on_reset_game(self):
@@ -68,23 +84,35 @@ class App:
         self.piece_meshes = {}
         self.highlight_meshes = []
 
-        for piece in self.game.get_all_pieces():
-            color = piece.color if piece.color == 1 else 0.25
+        self.update_pieces_meshes()
 
-            self.piece_meshes[piece] = Mesh(
-                **PIECE_MESH_DATA[piece.symbol],
-                pos=convert_piece_pos(*piece.pos),
-                color=(color, color, color),
-                on_click=lambda p=piece: self.handle_piece_click(p)
-            )
+    def update_pieces_meshes(self):
+        new_meshes = {}
+
+        for piece in self.game.get_all_pieces():
+
+            if piece.id in self.piece_meshes:
+                mesh = self.piece_meshes[piece.id]
+            else:
+                mesh = PieceModel(
+                    **PIECE_MESH_DATA[piece.symbol],
+                    pos=convert_piece_pos(*piece.pos),
+                    colors=PIECE_COLORS[piece.color],
+                    on_click=lambda p=piece: self.handle_piece_click(p)
+                )
+
+            mesh.pos = convert_piece_pos(*piece.pos)
+            new_meshes[piece.id] = mesh
+
+        self.piece_meshes = new_meshes
+
+        self.centralizing_camera = True
 
     def handle_piece_click(self, piece):
-        print("Clicou em", piece)
         self.highlight_meshes.clear()
 
         if self.selected_piece and self.selected_piece.color != piece.color:
-            self.handle_move(self.selected_piece.pos, piece.pos, piece)
-            return
+            return self.handle_move(self.selected_piece.pos, piece.pos)
 
         if self.checkmate or piece.color != self.game.current_player:
             return
@@ -98,24 +126,24 @@ class App:
             highlight = HighlightModel(
                 target=self.game.get_piece(*pos).color == 1 - self.selected_piece.color,
                 pos=convert_piece_pos(*pos),
-                on_click=lambda p=pos: self.handle_move(piece.pos, p, self.game.get_piece(*pos))
+                on_click=lambda p=pos: self.handle_move(piece.pos, p)
             )
     
             self.highlight_meshes.append(highlight)
 
-    def handle_move(self, start, end, target_piece):
+    def handle_move(self, start, end):
         try:
             self.game.move(start, end)
-            self.piece_meshes.pop(target_piece, "It was empty")
-
-            self.clear_selection()
-        except InCheckException:
-            self.clear_selection()
-        except CheckmateException:
+            self.centralizing_camera = True
+        except InCheckException as e:
+            print(e)
+        except CheckmateException as e:
             self.checkmate = True
-            self.clear_selection()
+            print(e)
         except ChessException as e:
             print(e)
+        finally:
+            self.clear_selection()
 
     def clear_selection(self):
         self.selected_piece = None
@@ -165,8 +193,11 @@ class App:
         self.board_model.draw()
 
         for piece in self.game.get_all_pieces():
-            self.piece_meshes[piece].pos = convert_piece_pos(*piece.pos)
-            self.piece_meshes[piece].draw()
+            mesh = self.piece_meshes.get(piece.id)
+
+            if mesh:
+                mesh.pos = convert_piece_pos(*piece.pos)
+                mesh.draw()
 
         for highlight_mesh in self.highlight_meshes:
             highlight_mesh.draw()
@@ -174,21 +205,42 @@ class App:
         glutSwapBuffers()
         glutPostRedisplay()
 
-    def __position_camera(self):
-        if not self.is_moving:
-            modifier = -1 if self.game.current_player == 0 else 1
-            target_theta = self.base_camera_theta * modifier
+    def centralize_camera(self):
+        modifier = -1 if self.game.current_player == 0 else 1
 
-            self.camera_theta += (target_theta - self.camera_theta) * 0.075
+        target_theta = self.base_camera_theta * modifier
+        target_phi = self.base_camera_phi
+        target_distance = self.min_camera_distance
+
+        diff_theta = target_theta - self.camera_theta
+        diff_phi = target_phi - self.camera_phi
+        diff_distance = target_distance - self.camera_distance
+
+        self.camera_theta += diff_theta * self.camera_transition_rate
+        self.camera_phi += diff_phi * self.camera_transition_rate
+        self.camera_distance += diff_distance * self.camera_transition_rate
+
+        if (
+            abs(diff_theta) < 1
+            and abs(diff_phi) < 1
+            and abs(diff_distance) < 0.01
+        ):
+            self.centralizing_camera = False
+
+    def __position_camera(self):
+        if self.centralizing_camera:
+            self.centralize_camera()
 
         theta = radians(self.camera_theta)
+        phi = radians(self.camera_phi)
 
-        x = self.camera_distance * sin(theta)
-        z = self.camera_distance * cos(theta)
+        x = self.camera_distance * cos(phi) * sin(theta)
+        y = self.camera_distance * sin(phi)
+        z = self.camera_distance * cos(phi) * cos(theta)
 
         gluLookAt(
-            x, self.camera_y, z,
-            0, 0, 0,
+            x, y, z,   # posição da câmera
+            0, 0, 0,   # olhando para o centro do tabuleiro
             0, 1, 0
         )
 
@@ -204,19 +256,26 @@ class App:
     def __keyboard(self, key, x, y):
         key = key.decode("utf-8")
 
+        if key == "u":
+            self.game.undo()
+
         if key == 'r':
             self.game.reset()
 
-        if key == "m":
-            self.is_moving = not self.is_moving
+        if key == "w":
+            self.camera_phi += 5
+        if key == "a":
+            self.camera_theta -= 5
+        if key == "s":
+            self.camera_phi -= 5
+        elif key == "d":
+            self.camera_theta += 5
 
-        if self.is_moving:
-            if key == 'a':
-                self.camera_theta += self.camera_speed
-            if key == 'd':
-                self.camera_theta -= self.camera_speed
-
+        self.camera_phi = max(10, min(80, self.camera_phi))
         self.camera_theta %= 360
+
+        if key == "c":
+            self.centralizing_camera = True
 
         self.board_model.keyboard(key, x, y)
 
@@ -226,6 +285,7 @@ class App:
         glutPostRedisplay()
 
     def __special_keys(self, key, x, y):
+
         for piece_mesh in self.piece_meshes.values():
             piece_mesh.special_keys(key, x, y)
 

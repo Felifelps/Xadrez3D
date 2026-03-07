@@ -1,10 +1,13 @@
 from . import ChessException
-from models.mesh import Mesh
+
 
 class Piece:
+    _next_id = 0
     symbol = "-"
 
     def __init__(self, color = 1):
+        self.id = Piece._next_id
+        Piece._next_id += 1
         self.game = None
         self.x = 0
         self.y = 0

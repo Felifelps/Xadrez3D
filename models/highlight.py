@@ -8,6 +8,7 @@ class HighlightModel(Mesh):
             color=(0.5, 0, 0) if target else (0, 0, 0.5),
             pos=pos,
             rot=rot,
-            scale=[s * 0.1 for s in scale],
+            scale=[s * 0.1125 for s in scale],
+            opacity=0.5,
             on_click=on_click,
         )
