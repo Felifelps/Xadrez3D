@@ -5,6 +5,7 @@ from OpenGL.GLUT import *
 from constants import *
 from game import *
 from models import *
+from utils import *
 from graphics.camera_app import OpenGLCameraApp
 
 

@@ -1,7 +1,7 @@
-from .mesh import Mesh
+from .object import Object
 
 
-class HighlightModel(Mesh):
+class HighlightModel(Object):
     def __init__(self, target=False, pos=(0, 0, 0), rot=(0, 0, 0), scale=(1, 1, 1), on_click=lambda: print("highlight_on_click")):
         super().__init__(
             obj_path="assets/highlight.obj",

@@ -34,16 +34,22 @@ PIECE_MESH_DATA = {
     },
 }
 
+BOARD_TEXTURES = [
+    'assets/board/chess_board1.png',
+    'assets/board/chess_board2.png',
+    'assets/board/chess_board3.png',
+]
+
 PIECE_COLORS = {
     0: (
         (0.25, 0.25, 0.25),
-        (0.6, 0.1, 0.15),
         (0.5, 0.4, 0.3),
+        (0.6, 0.1, 0.15),
     ),
     1: (
         (1, 1, 1),
-        (1, 1, 1),
         (0.8, 0.7, 0.55),
+        (0.96, 0.57, 0.84),
     ),
 }
 

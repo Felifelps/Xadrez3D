@@ -1,16 +1,14 @@
 from OpenGL.GL import *
-from .mesh import Mesh
+from .object import Object
+from constants import BOARD_TEXTURES
 
-class BoardModel(Mesh):
+
+class BoardModel(Object):
     current_texture_index = 0
 
     def __init__(self, pos=(0, 0, 0), rot=(0, 0, 0), scale=(1, 1, 1)):
 
-        self.texture_paths = [
-            'assets/board/chess_board1.png',
-            'assets/board/chess_board2.png',
-            'assets/board/chess_board3.png',
-        ]
+        self.texture_paths = BOARD_TEXTURES
 
         self.texture_ids = [self.load_texture(path) for path in self.texture_paths]
 

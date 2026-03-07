@@ -1,11 +1,10 @@
 from OpenGL.GL import *
-from .mesh import Mesh
+from .object import Object
 
-class PieceModel(Mesh):
+class PieceModel(Object):
     def __init__(
         self,
         obj_path,
-        texture_path=None,
         pos=(0, 0, 0),
         rot=(0, 0, 0),
         scale=(1, 1, 1),
