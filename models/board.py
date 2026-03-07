@@ -2,6 +2,8 @@ from OpenGL.GL import *
 from .mesh import Mesh
 
 class BoardModel(Mesh):
+    current_texture_index = 0
+
     def __init__(self, pos=(0, 0, 0), rot=(0, 0, 0), scale=(1, 1, 1)):
 
         self.texture_paths = [
@@ -12,7 +14,7 @@ class BoardModel(Mesh):
 
         self.texture_ids = [self.load_texture(path) for path in self.texture_paths]
 
-        self.current_texture_index = 0
+        BoardModel.current_texture_index = 0
 
         super().__init__(
             obj_path='assets/board/board.obj',
@@ -21,11 +23,12 @@ class BoardModel(Mesh):
             rot=rot,
             scale=scale,
         )
-        
 
     def keyboard(self, key, x, y):
         if key == "t":
-            self.current_texture_index = (self.current_texture_index + 1) % len(self.texture_paths)
-            self.texture_id = self.texture_ids[self.current_texture_index]
+            BoardModel.current_texture_index += 1 
+            BoardModel.current_texture_index %= len(self.texture_paths)
+
+            self.texture_id = self.texture_ids[BoardModel.current_texture_index]
 
         return super().keyboard(key, x, y)

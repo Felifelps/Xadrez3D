@@ -69,12 +69,10 @@ class Mesh:
                     break
                 uvs.append(self.texcoords[index])
 
-        # ensure contiguous float32 arrays
         self.va_vertices = np.ascontiguousarray(verts, dtype=np.float32)
         self.va_normals  = np.ascontiguousarray(norms, dtype=np.float32)
         self.va_uvs = np.ascontiguousarray(uvs, dtype=np.float32)
 
-        # flattened versions to be safe when passing to GL
         self.va_vertices_flat = self.va_vertices.flatten()
         self.va_normals_flat  = self.va_normals.flatten()
         self.va_uvs_flat = self.va_uvs.flatten()

@@ -43,8 +43,6 @@ class Game:
 
         self.on_reset()
 
-    # --------------------------------------------------
-
     def get_piece(self, x, y):
         return self.board[x][y]
 
@@ -58,8 +56,6 @@ class Game:
 
     def get_king_pos(self, color):
         return self.kings[color].pos
-
-    # --------------------------------------------------
 
     def change_player(self):
         self.current_player = 1 - self.current_player
@@ -79,8 +75,6 @@ class Game:
     def is_in_check(self, color):
         kx, ky = self.get_king_pos(color)
         return self.is_attacked_by(kx, ky, 1 - color)
-
-    # --------------------------------------------------
 
     def has_legal_moves(self, color):
 
@@ -112,8 +106,6 @@ class Game:
             return False
 
         return not self.has_legal_moves(color)
-
-    # --------------------------------------------------
 
     @contextmanager
     def simulate_move(self, start, end):
@@ -150,8 +142,6 @@ class Game:
 
         self.last_double_pawn = old_last_double
 
-    # --------------------------------------------------
-
     def undo(self):
         move = self.moves.get(self.current_move_index - 1, None)
 
@@ -184,44 +174,35 @@ class Game:
         piece = self.get_piece(sx, sy)
         target = self.get_piece(ex, ey)
 
-        # turno
         if piece.color != self.current_player:
             raise InvalidMoveException("Não é sua vez")
 
-        # não pode capturar própria peça
         if target.color == piece.color:
             raise InvalidMoveException("Não pode capturar peça da mesma cor")
 
-        # verificar se é roque
         if self.handle_castle(piece, start, end):
             return
 
-        # verificar en passant
         if self.handle_en_passant(piece, start, end):
             return
 
-        # validar movimento da peça
         if not piece.can_move_to(ex, ey):
             raise InvalidMoveException("Movimento inválido para essa peça")
 
-        # simular movimento
         with self.simulate_move(start, end):
             puts_in_check = self.is_in_check(self.current_player)
         
         if puts_in_check:
             raise InvalidMoveException("Movimento ilegal: deixa o rei em cheque")
 
-        # executar movimento
         self.board[ex][ey] = piece
         self.board[sx][sy] = Empty()
 
         piece.x, piece.y = ex, ey
         piece.has_moved = True
 
-        # promoção
         self.handle_promotion(piece, end)
 
-        # controle en passant
         if isinstance(piece, Pawn) and abs(ex - sx) == 2:
             self.last_double_pawn = (ex, ey)
         else:
@@ -232,17 +213,13 @@ class Game:
 
         self.on_move()
 
-        # trocar turno
         self.change_player()
 
-        # verificar estado do adversário
         if self.is_checkmate(self.current_player):
             raise CheckmateException("Xeque-mate")
 
         if self.is_in_check(self.current_player):
             raise InCheckException("Está em cheque")
-
-    # --------------------------------------------------
 
     def handle_promotion(self, piece, end):
 
@@ -258,8 +235,6 @@ class Game:
             promoted.game = self
 
             self.board[ex][ey] = promoted
-
-    # --------------------------------------------------
 
     def handle_en_passant(self, piece, start, end):
 
@@ -299,8 +274,6 @@ class Game:
         self.current_player = 1 - self.current_player
 
         return True
-
-    # --------------------------------------------------
 
     def handle_castle(self, piece, start, end):
 
@@ -364,10 +337,7 @@ class Game:
 
         return True
 
-    # --------------------------------------------------
-
     def __str__(self):
-
         result = "    0  1  2  3  4  5  6  7\n"
 
         for i, row in enumerate(self.board):

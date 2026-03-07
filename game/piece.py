@@ -79,8 +79,10 @@ class Piece:
 
 class Pawn(Piece):
     symbol = 'p'
+
     def __init__(self, color=1):
         super().__init__(color)
+
         self.direction = 1 if self.color == 0 else -1
         self.start_row = 1 if self.color == 0 else 6
 
@@ -140,11 +142,9 @@ class King(Piece):
         dx = abs(x - self.x)
         dy = abs(y - self.y)
 
-        # movimento normal
         if dx <= 1 and dy <= 1:
             return True
 
-        # roque
         if dx == 0 and dy == 2:
             if self.has_moved:
                 return False
@@ -158,7 +158,6 @@ class King(Piece):
             if rook.color != self.color or rook.has_moved:
                 return False
 
-            # verificar caminho livre
             step = 1 if y > self.y else -1
             for col in range(self.y + step, rook_y, step):
                 if not isinstance(self.game.get_piece(self.x, col), Empty):
@@ -168,11 +167,10 @@ class King(Piece):
 
         return False
 
-
 class Empty(Piece):
     symbol = "·"
     def __init__(self):
         super().__init__(color='·')
 
     def can_move_to(self, x, y):
-        raise ChessException("Cant move from nowhere")
+        raise ChessException("Não pode mover para um lugar vazio")
