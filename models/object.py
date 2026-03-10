@@ -47,14 +47,14 @@ class Object(Mesh):
             glDisable(GL_TEXTURE_2D)
 
         glTranslatef(*self.pos)
-        glTranslatef(*(-self.center))
 
         glRotatef(self.rot[0], 1, 0, 0)
         glRotatef(self.rot[1], 0, 1, 0)
         glRotatef(self.rot[2], 0, 0, 1)
 
-        glTranslatef(*self.center)
         glScalef(*self.scale)
+
+        glTranslatef(-self.center[0], -self.center[1], -self.center[2])
 
         glEnableClientState(GL_VERTEX_ARRAY)
         glEnableClientState(GL_NORMAL_ARRAY)

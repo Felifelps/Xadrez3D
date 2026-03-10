@@ -1,11 +1,11 @@
 from OpenGL.GL import *
 from OpenGL.GLU import *
 
-from constants import POSITIONS
+from constants import POSITIONS, BASE_Y
 
 
-def convert_piece_pos(x, y):
-    return [POSITIONS[x], 0, POSITIONS[7 - y]]
+def convert_piece_pos(chess_x, chess_y, base_y=BASE_Y):
+    return [POSITIONS[chess_x], base_y, POSITIONS[7 - chess_y]]
 
 def make_ray_from_mouse(mouse_x: float, mouse_y: float):
 

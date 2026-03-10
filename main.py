@@ -86,7 +86,7 @@ class App(OpenGLCameraApp):
 
             highlight = HighlightModel(
                 target=target,
-                pos=convert_piece_pos(*pos),
+                pos=convert_piece_pos(*pos, base_y=0.07),
                 on_click=on_click,
             )
 
