@@ -17,8 +17,8 @@ class BishopModel(Piece):
         super().__init__(obj_path="assets/bishop/bishop.obj", pos=pos, rot=rot, scale=scale)
 
 class PawnModel(Piece):
-    def __init__(self, pos=(0,0,0), rot=(0,0,0), scale=(0.01, 0.01, 0.01)):
-        super().__init__(obj_path="assets/pawn/peao.obj", pos=pos, rot=rot, scale=scale)
+    def __init__(self, pos=(0,0,0), rot=(0,0,0), scale=(0.075, 0.075, 0.075)):
+        super().__init__(obj_path="assets/pawn/pawn.obj", pos=pos, rot=rot, scale=scale)
 
 class KingModel(Piece):
     def __init__(self, pos=(0,0,0), rot=(0,0,0), scale=(0.02, 0.02, 0.02)):

@@ -40,6 +40,13 @@ class App:
             KnightModel(pos=(positions[5], 0, positions[0])),
             RookModel(pos=(positions[4], 0, positions[0])),
             PawnModel(pos=(positions[0], 0, positions[1])),
+            PawnModel(pos=(positions[1], 0, positions[1])),
+            PawnModel(pos=(positions[2], 0, positions[1])),
+            PawnModel(pos=(positions[3], 0, positions[1])),
+            PawnModel(pos=(positions[4], 0, positions[1])),
+            PawnModel(pos=(positions[5], 0, positions[1])),
+            PawnModel(pos=(positions[6], 0, positions[1])),
+            PawnModel(pos=(positions[7], 0, positions[1])),
             HighlightModel(pos=(positions[1], 0, positions[1])),
         ]
 
