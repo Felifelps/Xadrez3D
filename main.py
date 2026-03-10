@@ -31,7 +31,15 @@ class App:
 
         self.objects: list[Mesh] = [
             BoardModel(),
-            RookModel(pos=(positions[0], 0, positions[2])),
+            RookModel(pos=(positions[0], 0, positions[0])),
+            KnightModel(pos=(positions[1], 0, positions[0])),
+            BishopModel(pos=(positions[2], 0, positions[0])),
+            KingModel(pos=(positions[3], 0, positions[0])),
+            QueenModel(pos=(positions[7], 0, positions[0])),
+            BishopModel(pos=(positions[6], 0, positions[0])),
+            KnightModel(pos=(positions[5], 0, positions[0])),
+            RookModel(pos=(positions[4], 0, positions[0])),
+            PawnModel(pos=(positions[0], 0, positions[1])),
             HighlightModel(pos=(positions[1], 0, positions[1])),
         ]
 
@@ -39,7 +47,7 @@ class App:
         glutInit()
         glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH)
         glutInitWindowSize(WIDTH, HEIGHT)
-        glutCreateWindow("Xadrez3D")
+        glutCreateWindow(b"Xadrez3D")
 
         glClearColor(*CLEAR_COLOR)
         glEnable(GL_DEPTH_TEST)

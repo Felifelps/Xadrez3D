@@ -35,10 +35,16 @@ def load_obj(path):
     faces_vt = []
     faces_vn = []
 
-    with open(path, "r") as f:
+    with open(path, "r", encoding="latin1") as f:
         lines = f.read().split('\n')
+    print(f"load_obj: {path} -> {len(lines)} lines")
 
     for line in lines:
+        # remove comments and strip whitespace
+        line = line.split('#', 1)[0].strip()
+        if not line:
+            continue
+
         if line.startswith("v "):
             parts = line.split()
             x, y, z = parts[1:4]
