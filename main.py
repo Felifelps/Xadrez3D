@@ -52,7 +52,8 @@ class App(OpenGLCameraApp):
 
                 on_click = lambda p=piece: self.handle_piece_click(p)
 
-                piece_data["pos"] = list(x + y for x, y in zip(convert_piece_pos(*piece.pos), PIECE_MESH_DATA[piece.symbol]["pos"]))
+                calculated = convert_piece_pos(*piece.pos)
+                piece_data["pos"] = list(x + y for x, y in zip(calculated, piece_data["pos"]))
 
                 mesh = PieceModel(
                     **piece_data,
