@@ -52,9 +52,10 @@ class App(OpenGLCameraApp):
 
                 on_click = lambda p=piece: self.handle_piece_click(p)
 
+                piece_data["pos"] = list(x + y for x, y in zip(convert_piece_pos(*piece.pos), PIECE_MESH_DATA[piece.symbol]["pos"]))
+
                 mesh = PieceModel(
                     **piece_data,
-                    pos=convert_piece_pos(*piece.pos),
                     colors=piece_colors,
                     on_click=on_click,
                 )
