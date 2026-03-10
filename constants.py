@@ -8,37 +8,37 @@ PIECE_MESH_DATA = {
         "obj_path": "assets/rook.obj",
         "rot": (0, 0, 0),
         "scale": (0.25, 0.25, 0.25),
-        "pos": (0, 0, 0),
+        "pos_delta": (0, 0, 0),
     },
     "k": {
         "obj_path": "assets/rook.obj",
         "rot": (0, 0, 0),
         "scale": (0.25, 0.25, 0.25),
-        "pos": (0, 0, 0),
+        "pos_delta": (0, 0, 0),
     },
     "b": {
         "obj_path": "assets/rook.obj",
         "rot": (0, 0, 0),
         "scale": (0.25, 0.25, 0.25),
-        "pos": (0, 0, 0),
+        "pos_delta": (0, 0, 0),
     },
     "Q": {
         "obj_path": "assets/queen.obj",
         "rot": (0, 0, 0),
         "scale": (0.2, 0.225, 0.2),
-        "pos": (0, 0, 0),
+        "pos_delta": (0, 0, 0),
     },
     "K": {
         "obj_path": "assets/king.obj",
         "rot": (-90, 0, 90),
         "scale": (0.015, 0.015, 0.015),
-        "pos": (0, 0, 0),
+        "pos_delta": (0, 0, 0),
     },
     "p": {
         "obj_path": "assets/pawn.obj",
         "rot": (0, 0, 0),
         "scale": (0.075, 0.075, 0.075),
-        "pos": (0, -0.5, 0),
+        "pos_delta": (0, -0.09, 0),
     },
 }
 

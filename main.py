@@ -47,21 +47,26 @@ class App(OpenGLCameraApp):
             if piece.id in self.piece_meshes:
                 mesh = self.piece_meshes[piece.id]
             else:
-                piece_data = PIECE_MESH_DATA[piece.symbol]
+                template = PIECE_MESH_DATA[piece.symbol]
                 piece_colors = PIECE_COLORS[piece.color]
 
                 on_click = lambda p=piece: self.handle_piece_click(p)
 
-                calculated = convert_piece_pos(*piece.pos)
-                piece_data["pos"] = list(x + y for x, y in zip(calculated, piece_data["pos"]))
-
                 mesh = PieceModel(
-                    **piece_data,
+                    obj_path=template.get("obj_path"),
+                    scale=template.get("scale"),
+                    rot=template.get("rot"),
                     colors=piece_colors,
                     on_click=on_click,
                 )
 
-            mesh.pos = convert_piece_pos(*piece.pos)
+                mesh.offset = template.get("pos_delta", (0, 0, 0))
+
+            pos = convert_piece_pos(*piece.pos)
+            for i in range(3):
+                pos[i] += mesh.offset[i]
+
+            mesh.pos = pos
             new_meshes[piece.id] = mesh
 
         self.piece_meshes = new_meshes
