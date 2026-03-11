@@ -23,7 +23,7 @@ class Mesh:
         faces_vt = []
         faces_vn = []
 
-        with open(path, "r") as f:
+        with open(path, "r", encoding="utf-8") as f:
             lines = f.read().split('\n')
 
         for line in lines:
