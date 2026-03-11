@@ -85,8 +85,6 @@ class Mesh:
         self.faces_vt = faces_vt
         self.faces_vn = faces_vn
 
-        self.center = self.__compute_center()
-
         xs = [v[0] for v in vertex]
         ys = [v[1] for v in vertex]
         zs = [v[2] for v in vertex]
@@ -170,8 +168,3 @@ class Mesh:
         self.va_uvs_flat = self.va_uvs.flatten()
 
         self.vertex_count = len(verts)
-
-    def __compute_center(self):
-        verts = np.array(self.vertex, dtype=float)
-        center = np.mean(verts, axis=0)
-        return center
