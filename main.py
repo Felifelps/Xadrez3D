@@ -15,6 +15,7 @@ class App(OpenGLCameraApp):
         super().__init__("Xadrez3D")
 
         self.board_model = BoardModel()
+
         self.game = Game(
             on_reset=self.reset_game,
             on_move=self.update_pieces_meshes
@@ -61,6 +62,10 @@ class App(OpenGLCameraApp):
                 )
 
                 mesh.offset = template.get("pos_delta", (0, 0, 0))
+
+            mod = 1 if piece.color == 1 else -1
+
+            mesh.rot[1] *= mod
 
             pos = convert_piece_pos(*piece.pos)
             for i in range(3):
