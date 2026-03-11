@@ -123,6 +123,10 @@ class App(OpenGLCameraApp):
         self.selected_piece = None
         self.highlight_meshes.clear()
 
+    def centralize_camera(self):
+        self.modifier = -1 if self.game.current_player == 0 else 1
+        return super().centralize_camera()
+
     def display(self):
         super().display()
 

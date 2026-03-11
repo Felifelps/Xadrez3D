@@ -17,6 +17,7 @@ class OpenGLCameraApp(BaseOpenGLApp):
         self.min_camera_distance = 3
         self.max_camera_distance = 5
         self.camera_transition_rate = 0.075
+        self.camera_transition_modifier = 1
         self.centralizing_camera = False
 
         self.camera_distance = self.min_camera_distance
@@ -46,9 +47,7 @@ class OpenGLCameraApp(BaseOpenGLApp):
         return super().display()
 
     def centralize_camera(self):
-        modifier = -1 if self.game.current_player == 0 else 1
-
-        target_theta = self.base_camera_theta * modifier
+        target_theta = self.base_camera_theta * self.modifier
         target_phi = self.base_camera_phi
         target_distance = self.min_camera_distance
 
