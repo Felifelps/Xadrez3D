@@ -195,8 +195,8 @@ class Game:
         if puts_in_check:
             raise InvalidMoveException("Movimento ilegal: deixa o rei em cheque")
 
-        self.board[ex][ey] = piece
         self.board[sx][sy] = Empty()
+        self.board[ex][ey] = piece
 
         piece.x, piece.y = ex, ey
         piece.has_moved = True

@@ -11,7 +11,6 @@ class BoardModel(Object):
         self.texture_paths = BOARD_TEXTURES
 
         self.texture_ids = [self.load_texture(path) for path in self.texture_paths]
-
         BoardModel.current_texture_index = 0
 
         super().__init__(

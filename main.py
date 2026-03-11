@@ -72,6 +72,8 @@ class App(OpenGLCameraApp):
                 pos[i] += mesh.offset[i]
 
             mesh.pos = pos
+
+            print(piece, piece.pos, mesh.pos)
             new_meshes[piece.id] = mesh
 
         self.piece_meshes = new_meshes
@@ -86,8 +88,6 @@ class App(OpenGLCameraApp):
 
         if self.checkmate or piece.color != self.game.current_player:
             return
-
-        self.clear_selection()
 
         self.selected_piece = piece
 
