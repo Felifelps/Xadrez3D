@@ -73,7 +73,6 @@ class App(OpenGLCameraApp):
 
             mesh.pos = pos
 
-            print(piece, piece.pos, mesh.pos)
             new_meshes[piece.id] = mesh
 
         self.piece_meshes = new_meshes
