@@ -270,6 +270,8 @@ class Game:
         piece.x, piece.y = ex, ey
         piece.has_moved = True
 
+        self.on_move()
+
         self.last_double_pawn = None
         self.current_player = 1 - self.current_player
 
@@ -331,6 +333,8 @@ class Game:
 
         piece.has_moved = True
         rook.has_moved = True
+
+        self.on_move()
 
         self.current_player = 1 - self.current_player
         self.last_double_pawn = None
