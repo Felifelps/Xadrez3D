@@ -6,7 +6,7 @@ from constants import BOARD_TEXTURES
 class BoardModel(Object):
     current_texture_index = 0
 
-    def __init__(self, pos=(0, 0, 0), rot=(0, 0, 0), scale=(1, 1, 1)):
+    def __init__(self, pos=(0, 0, 0), rot=(0, 0, 0), scale=(1, 1, 1), on_click=lambda: None):
 
         self.texture_paths = BOARD_TEXTURES
 
@@ -19,6 +19,7 @@ class BoardModel(Object):
             pos=pos,
             rot=rot,
             scale=scale,
+            on_click=on_click,
         )
 
     def keyboard(self, key, x, y):
