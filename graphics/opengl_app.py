@@ -40,7 +40,7 @@ class BaseOpenGLApp:
         glMatrixMode(GL_PROJECTION)
 
         glLoadIdentity()
-        gluPerspective(45, w / float(h), 0.1, 50.0)
+        gluPerspective(45, w / max(float(h), 1), 0.1, 5.0)
 
         glMatrixMode(GL_MODELVIEW)
 
